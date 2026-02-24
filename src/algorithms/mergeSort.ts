@@ -9,7 +9,7 @@
 import type { SortStep } from '../types';
 
 /**
- * Merge Sort - yields sorting steps for visualization
+ * Merge Sort - yields sorting steps for visualization (optimized to reduce array copying)
  * @param arr - Array to sort (will be modified)
  * @returns Async generator of sort steps
  */
@@ -67,7 +67,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
     let j = 0; // Index for right array
     let k = left; // Index for merged array
 
-    // Show merge range
+    // Show merge range (with array copy for initial display)
     yield {
       type: 'highlight',
       indices: Array.from({ length: right - left + 1 }, (_, idx) => left + idx),
@@ -79,11 +79,10 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
 
     // Merge elements
     while (i < leftArr.length && j < rightArr.length) {
-      // Compare elements
+      // Compare elements (no array copy)
       yield {
         type: 'compare',
         indices: [left + i, mid + 1 + j],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${leftArr[i]} and ${rightArr[j]}`,
@@ -91,6 +90,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
 
       if (leftArr[i] <= rightArr[j]) {
         arr[k] = leftArr[i];
+        // Yield after placement (with array copy)
         yield {
           type: 'swap',
           indices: [k],
@@ -102,6 +102,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
         i++;
       } else {
         arr[k] = rightArr[j];
+        // Yield after placement (with array copy)
         yield {
           type: 'swap',
           indices: [k],
@@ -118,6 +119,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
     // Copy remaining elements from left array
     while (i < leftArr.length) {
       arr[k] = leftArr[i];
+      // Yield after placement (with array copy)
       yield {
         type: 'swap',
         indices: [k],
@@ -133,6 +135,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
     // Copy remaining elements from right array
     while (j < rightArr.length) {
       arr[k] = rightArr[j];
+      // Yield after placement (with array copy)
       yield {
         type: 'swap',
         indices: [k],
@@ -145,7 +148,7 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
       k++;
     }
 
-    // Mark merged range as sorted
+    // Mark merged range as sorted (with array copy)
     const sortedIndices: number[] = [];
     for (let idx = left; idx <= right; idx++) {
       sortedIndices.push(idx);
@@ -169,14 +172,4 @@ export async function* mergeSort(arr: number[]): AsyncGenerator<SortStep> {
     yield result.value;
     result = await mainGenerator.next();
   }
-
-  // Mark all elements as sorted
-  yield {
-    type: 'sorted',
-    indices: Array.from({ length: arr.length }, (_, i) => i),
-    array: [...arr],
-    comparisons,
-    swaps,
-    description: 'Array is fully sorted',
-  };
 }

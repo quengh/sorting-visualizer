@@ -49,7 +49,8 @@ export function useSorting(): UseSortingReturn {
 
     setState((prev) => {
       const updates: Partial<SortState> = {
-        array: step.array,
+        // Use step.array if provided, otherwise keep current array
+        array: step.array ?? prev.array,
         stats: {
           comparisons: step.comparisons ?? prev.stats.comparisons,
           swaps: step.swaps ?? prev.stats.swaps,

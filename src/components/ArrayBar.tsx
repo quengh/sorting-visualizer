@@ -3,6 +3,7 @@
  * Renders a single bar in the visualization
  */
 
+import { memo } from 'react';
 import type { BarColor } from '../types';
 import { COLOR_MAP, getTextColorForBar } from '../utils/color';
 import { t, type Language } from '../i18n';
@@ -17,7 +18,7 @@ interface ArrayBarProps {
   language: Language;
 }
 
-export function ArrayBar({ value, maxValue, color, index, width, arrayLength, language }: ArrayBarProps) {
+function ArrayBarImpl({ value, maxValue, color, index, width, arrayLength, language }: ArrayBarProps) {
   const height = (value / maxValue) * 100;
   const colorClass = COLOR_MAP[color] || COLOR_MAP.default;
   const textColor = getTextColorForBar(color);
@@ -70,3 +71,5 @@ export function ArrayBar({ value, maxValue, color, index, width, arrayLength, la
     </div>
   );
 }
+
+export const ArrayBar = memo(ArrayBarImpl);

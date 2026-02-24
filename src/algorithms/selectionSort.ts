@@ -9,7 +9,7 @@
 import type { SortStep } from '../types';
 
 /**
- * Selection Sort - yields sorting steps for visualization
+ * Selection Sort - yields sorting steps for visualization (optimized to reduce array copying)
  * @param arr - Array to sort (will be modified)
  * @returns Async generator of sort steps
  */
@@ -22,11 +22,10 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
   for (let i = 0; i < n - 1; i++) {
     let minIndex = i;
 
-    // Yield initial minimum
+    // Yield initial minimum (no array copy)
     yield {
       type: 'highlight',
       indices: [i],
-      array: [...arr],
       comparisons,
       swaps,
       description: `Finding minimum from position ${i}`,
@@ -34,11 +33,10 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
 
     // Inner loop to find minimum
     for (let j = i + 1; j < n; j++) {
-      // Yield comparison step
+      // Yield comparison step (no array copy)
       yield {
         type: 'compare',
         indices: [minIndex, j],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${arr[minIndex]} with ${arr[j]}`,
@@ -50,7 +48,6 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
         yield {
           type: 'highlight',
           indices: [minIndex],
-          array: [...arr],
           comparisons,
           swaps,
           description: `New minimum found: ${arr[minIndex]} at position ${minIndex}`,
@@ -63,7 +60,6 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
       yield {
         type: 'swap',
         indices: [i, minIndex],
-        array: [...arr],
         comparisons,
         swaps: ++swaps,
         description: `Swapping ${arr[i]} with minimum ${arr[minIndex]}`,
@@ -71,6 +67,7 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
 
       [arr[i], arr[minIndex]] = [arr[minIndex], arr[i]];
 
+      // Yield after swap with array copy
       yield {
         type: 'swap',
         indices: [i, minIndex],
@@ -81,7 +78,7 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
       };
     }
 
-    // Mark position i as sorted
+    // Mark position i as sorted (with array copy)
     yield {
       type: 'sorted',
       indices: [i],
@@ -92,7 +89,7 @@ export async function* selectionSort(arr: number[]): AsyncGenerator<SortStep> {
     };
   }
 
-  // Mark the last element as sorted
+  // Mark the last element as sorted (with array copy)
   yield {
     type: 'sorted',
     indices: [n - 1],

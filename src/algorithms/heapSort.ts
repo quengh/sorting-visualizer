@@ -9,7 +9,7 @@
 import type { SortStep } from '../types';
 
 /**
- * Heap Sort - yields sorting steps for visualization
+ * Heap Sort - yields sorting steps for visualization (optimized to reduce array copying)
  * @param arr - Array to sort (will be modified)
  * @returns Async generator of sort steps
  */
@@ -27,12 +27,11 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
     const left = 2 * root + 1;
     const right = 2 * root + 2;
 
-    // Compare with left child
+    // Compare with left child (no array copy)
     if (left < size) {
       yield {
         type: 'compare',
         indices: [largest, left],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${arr[largest]} with left child ${arr[left]}`,
@@ -43,12 +42,11 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
       }
     }
 
-    // Compare with right child
+    // Compare with right child (no array copy)
     if (right < size) {
       yield {
         type: 'compare',
         indices: [largest, right],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${arr[largest]} with right child ${arr[right]}`,
@@ -61,10 +59,10 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
 
     // If largest is not root, swap and heapify
     if (largest !== root) {
+      // Yield before swap (no array copy)
       yield {
         type: 'swap',
         indices: [root, largest],
-        array: [...arr],
         comparisons,
         swaps: ++swaps,
         description: `Swapping ${arr[root]} with larger child ${arr[largest]}`,
@@ -72,6 +70,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
 
       [arr[root], arr[largest]] = [arr[largest], arr[root]];
 
+      // Yield after swap (with array copy)
       yield {
         type: 'swap',
         indices: [root, largest],
@@ -92,7 +91,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
     }
   }
 
-  // Build max heap
+  // Build max heap (with array copy for initial display)
   yield {
     type: 'highlight',
     indices: Array.from({ length: n }, (_, i) => i),
@@ -118,7 +117,6 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
     yield {
       type: 'swap',
       indices: [0, i],
-      array: [...arr],
       comparisons,
       swaps: ++swaps,
       description: `Moving root ${arr[0]} to position ${i}`,
@@ -126,6 +124,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
 
     [arr[0], arr[i]] = [arr[i], arr[0]];
 
+    // Yield after swap (with array copy)
     yield {
       type: 'swap',
       indices: [0, i],
@@ -135,7 +134,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
       description: `After swap: ${arr[i]} is now at sorted position`,
     };
 
-    // Mark as sorted
+    // Mark as sorted (with array copy)
     yield {
       type: 'sorted',
       indices: [i],
@@ -155,7 +154,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
     }
   }
 
-  // Mark first element as sorted
+  // Mark first element as sorted (with array copy)
   yield {
     type: 'sorted',
     indices: [0],
@@ -165,7 +164,7 @@ export async function* heapSort(arr: number[]): AsyncGenerator<SortStep> {
     description: `First element ${arr[0]} is now sorted`,
   };
 
-  // Mark all elements as sorted
+  // Mark all elements as sorted (with array copy)
   yield {
     type: 'sorted',
     indices: Array.from({ length: n }, (_, i) => i),

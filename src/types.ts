@@ -16,7 +16,7 @@ export type StepType = 'compare' | 'swap' | 'pivot' | 'sorted' | 'highlight';
 export interface SortStep {
   type: StepType;
   indices: number[];
-  array: number[];
+  array?: number[]; // Optional to allow algorithms to skip array copying
   comparisons?: number;
   swaps?: number;
   description?: string;

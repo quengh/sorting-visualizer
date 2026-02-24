@@ -9,7 +9,7 @@
 import type { SortStep } from '../types';
 
 /**
- * Quick Sort - yields sorting steps for visualization
+ * Quick Sort - yields sorting steps for visualization (optimized to reduce array copying)
  * @param arr - Array to sort (will be modified)
  * @returns Async generator of sort steps
  */
@@ -58,7 +58,7 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
     const pivot = arr[high];
     let i = low - 1;
 
-    // Mark pivot
+    // Mark pivot (with array copy for initial display)
     yield {
       type: 'pivot',
       indices: [high],
@@ -70,10 +70,10 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
 
     // Compare elements with pivot
     for (let j = low; j < high; j++) {
+      // Yield comparison (no array copy)
       yield {
         type: 'compare',
         indices: [j, high],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${arr[j]} with pivot ${pivot}`,
@@ -82,10 +82,10 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
       if (arr[j] < pivot) {
         i++;
         if (i !== j) {
+          // Yield before swap (no array copy)
           yield {
             type: 'swap',
             indices: [i, j],
-            array: [...arr],
             comparisons,
             swaps: ++swaps,
             description: `Swapping ${arr[i]} and ${arr[j]}`,
@@ -93,6 +93,7 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
 
           [arr[i], arr[j]] = [arr[j], arr[i]];
 
+          // Yield after swap (with array copy)
           yield {
             type: 'swap',
             indices: [i, j],
@@ -109,7 +110,6 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
     yield {
       type: 'swap',
       indices: [i + 1, high],
-      array: [...arr],
       comparisons,
       swaps: ++swaps,
       description: `Placing pivot ${pivot} at position ${i + 1}`,
@@ -117,6 +117,7 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
 
     [arr[i + 1], arr[high]] = [arr[high], arr[i + 1]];
 
+    // Yield after pivot placement (with array copy)
     yield {
       type: 'swap',
       indices: [i + 1, high],
@@ -126,7 +127,7 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
       description: `Pivot ${pivot} now at position ${i + 1}`,
     };
 
-    // Mark pivot as sorted
+    // Mark pivot as sorted (with array copy)
     yield {
       type: 'sorted',
       indices: [i + 1],
@@ -148,7 +149,7 @@ export async function* quickSort(arr: number[]): AsyncGenerator<SortStep> {
     result = await mainGenerator.next();
   }
 
-  // Mark all elements as sorted
+  // Mark all elements as sorted (with array copy)
   yield {
     type: 'sorted',
     indices: Array.from({ length: arr.length }, (_, i) => i),

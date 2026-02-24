@@ -9,7 +9,7 @@
 import type { SortStep } from '../types';
 
 /**
- * Bubble Sort - yields sorting steps for visualization
+ * Bubble Sort - yields sorting steps for visualization (optimized to reduce array copying)
  * @param arr - Array to sort (will be modified)
  * @returns Async generator of sort steps
  */
@@ -24,11 +24,10 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
 
     // Inner loop for comparisons
     for (let j = 0; j < n - i - 1; j++) {
-      // Yield comparison step
+      // Yield comparison step (no array copy)
       yield {
         type: 'compare',
         indices: [j, j + 1],
-        array: [...arr],
         comparisons: ++comparisons,
         swaps,
         description: `Comparing ${arr[j]} and ${arr[j + 1]}`,
@@ -36,11 +35,10 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
 
       // Compare and swap if needed
       if (arr[j] > arr[j + 1]) {
-        // Yield swap step
+        // Yield swap step before swap (no array copy)
         yield {
           type: 'swap',
           indices: [j, j + 1],
-          array: [...arr],
           comparisons,
           swaps: ++swaps,
           description: `Swapping ${arr[j]} and ${arr[j + 1]}`,
@@ -50,7 +48,7 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         swapped = true;
 
-        // Show swapped array
+        // Yield swap step after swap (with array copy for visual update)
         yield {
           type: 'swap',
           indices: [j, j + 1],
@@ -62,7 +60,7 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
       }
     }
 
-    // Mark the last element as sorted
+    // Mark the last element as sorted (with array copy)
     yield {
       type: 'sorted',
       indices: [n - i - 1],
@@ -79,7 +77,6 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
         yield {
           type: 'sorted',
           indices: [k],
-          array: [...arr],
           comparisons,
           swaps,
           description: `Element at position ${k} is now sorted`,
@@ -89,7 +86,7 @@ export async function* bubbleSort(arr: number[]): AsyncGenerator<SortStep> {
     }
   }
 
-  // Mark the first element as sorted
+  // Mark the first element as sorted (with array copy)
   yield {
     type: 'sorted',
     indices: [0],
